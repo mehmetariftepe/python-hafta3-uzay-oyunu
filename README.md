@@ -25,16 +25,7 @@ Her görevden sonra testler çalıştırılır. Test çıktıları kontroller kl
 Her görev ayrı commit olarak kaydedilir. İlk saf fonksiyon testlerinin ve
 paylaşılan varsayılan liste testinin başarısız sonuçları da korunur.
 
-## Teslimin tamamlanması
-
-GitHub deposu: https://github.com/mehmetariftepe/python-hafta3-uzay-oyunu
-
-PDF GitHub deposunun bağlantısını ister. Özgün 2. hafta projesi
-sağlandığında değişiklikler o projenin üzerine aktarılıp eski testler de
-çalıştırılmalıdır. kapsam.md içindeki örnekler ders örnekleri değildir.
-Her fonksiyonu açıklayabilecek şekilde çalışılmalıdır.
-
-## Fonksiyonları açıklamak için kısa rehber
+## Fonksiyonlar
 
 | Fonksiyon | Temel mantık |
 | --- | --- |
@@ -50,20 +41,5 @@ Her fonksiyonu açıklayabilecek şekilde çalışılmalıdır.
 
 Bu bağımsız oyunda her geçerli yolculuk 10 yakıt harcar. Dünya başlangıcında
 kredi vardır; centauri ziyaretinde motor, orion ziyaretinde pilot edinilir.
-Bu kurallar dersin özgün oyunu hakkında iddia değildir. Menülerde sayı seçilir;
+Menülerde sayı seçilir;
 q ile çıkılır. 2 ve ardından 4 seçilirse kara deliğe iki hamlede ulaşılır.
-PDF'teki 13 hamle bir çıktı biçimi örneğidir; her oyunun 13 hamle sürmesi gerekmez.
-
-## Yerel git geçmişini açma
-
-ZIP'in içindeki bundle dosyası commit geçmişini taşır:
-
-```sh
-git clone hafta3_git_gecmisi.bundle hafta3_proje
-cd hafta3_proje
-uv run pytest
-```
-
-Commitler gerçek hazırlama sırasıyla, 11.10.2026 tarihinde oluşturulmuştur.
-Geçmişte eski haftaya ait veya öğrenci tarafından yazıldığı iddia edilen
-commit bulunmaz. Görev commitleri GitHub deposuna sırayla aktarılmıştır.
