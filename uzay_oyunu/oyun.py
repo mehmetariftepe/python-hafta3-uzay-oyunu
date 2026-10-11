@@ -1,4 +1,6 @@
-"""Envanter ve menü metinleri; oyun akışı sonraki görevlerde eklenir."""
+"""Saf metin fonksiyonları ve basit uzay oyunu akışı."""
+from typing import Any
+from uzay_oyunu.araclar import hamle_sayaci
 
 def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
     """Mevcut eşyaları tek metinde döndürür; boş envanterde boş metin verir."""
@@ -20,8 +22,9 @@ def hedef_menusu(hedefler: list[str]) -> str:
         satirlar.append(f"[{sira}] {hedef}")
     return "\n".join(satirlar)
 
-def travel(galaksi: dict) -> int:
+def travel(galaksi: dict[str, Any]) -> int:
     """Veri dosyasındaki bağlantılarla yolculuk yapar ve hamle sayısını döndürür."""
+    sayac = hamle_sayaci()
     hamle = 0
     credits, engines, copilot = True, False, False
     while galaksi["konum"] != "kara_delik" and galaksi["yakit"] >= 10:
@@ -40,7 +43,7 @@ def travel(galaksi: dict) -> int:
             continue
         galaksi["konum"] = hedefler[int(secim) - 1]
         galaksi["yakit"] -= 10
-        hamle += 1
+        hamle = sayac()
         if galaksi["konum"] == "centauri":
             engines = True
         if galaksi["konum"] == "orion":
