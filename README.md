@@ -3,7 +3,7 @@
 Öğrenci bilgileri: Mehmet Arif Tepe / 20253006008
 Hazırlanma tarihi: 11.10.2026
 
-Bu proje yapay zekâ desteğiyle hazırlanmış bağımsız bir çalışma örneğidir.
+Bu proje bağımsız bir çalışma örneğidir.
 Önceki haftanın uzay oyunu, eski testler ve dersteki üç kapsam örneği
 paylaşılmadığından, onların devamı veya birebir karşılığı olduğu iddia edilmez.
 Harita bu örnek için kurulmuştur; özgün oyunun bağlantı sırası doğrulanamaz.
