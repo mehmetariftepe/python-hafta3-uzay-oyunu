@@ -1,0 +1,9 @@
+30ed329 Başlangıç: bağımsız çalışma örneği ve uv ortamı
+4b69f5b Görev 1: saf fonksiyonların önce yazılan başarısız testleri
+09705fb Görev 1: saf envanter ve hedef menüsü fonksiyonları
+2d71490 Görev 2: esnek parametreler ve iki çağrı biçimi
+0cb8561 Görev 3: JSON haritası ve veriden çalışan yolculuk
+052c7b5 Görev 4: paylaşılan varsayılan listeyi gösteren başarısız test
+deb8c43 Görev 4: None kalıbı ve açıklamalı kapsam örnekleri
+9bda589 Görev 5: nonlocal sayaç, yolculuk entegrasyonu ve lambda sıralaması
+791a47f Bonus: süre ölçen args ve kwargs sarmalayıcısı

@@ -1,0 +1,14 @@
+Konum: dünya
+Sende: bol kredi
+Nereye gitmek istersin?
+[1] centauri
+[2] sirius
+Seçim (çıkış: q): Konum: sirius
+Sende: bol kredi
+Nereye gitmek istersin?
+[1] dünya
+[2] centauri
+[3] orion
+[4] kara_delik
+Seçim (çıkış: q): Kara deliğe ulaştın!
+Oyunu 2 hamlede bitirdin!
