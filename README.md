@@ -27,8 +27,9 @@ paylaşılan varsayılan liste testinin başarısız sonuçları da korunur.
 
 ## Teslimin tamamlanması
 
-PDF GitHub deposunun bağlantısını ister. Bu ZIP ve yerel git geçmişi,
-GitHub'da yayımlanmış depo bağlantısının yerini tutmaz. Özgün 2. hafta projesi
+GitHub deposu: https://github.com/mehmetariftepe/python-hafta3-uzay-oyunu
+
+PDF GitHub deposunun bağlantısını ister. Özgün 2. hafta projesi
 sağlandığında değişiklikler o projenin üzerine aktarılıp eski testler de
 çalıştırılmalıdır. kapsam.md içindeki örnekler ders örnekleri değildir.
 Her fonksiyonu açıklayabilecek şekilde çalışılmalıdır.
@@ -65,4 +66,4 @@ uv run pytest
 
 Commitler gerçek hazırlama sırasıyla, 11.10.2026 tarihinde oluşturulmuştur.
 Geçmişte eski haftaya ait veya öğrenci tarafından yazıldığı iddia edilen
-commit bulunmaz. GitHub'a aktarım henüz yapılmamıştır.
+commit bulunmaz. Görev commitleri GitHub deposuna sırayla aktarılmıştır.
