@@ -1,6 +1,7 @@
 # Hafta 4 - Üreteçler ve functools
 
-Mehmet Arif Tepe / 20253006008 — İleri Python Programlama, 2026–2027 Güz.
+Mehmet Arif Tepe / 20253006008
+Hazırlanma tarihi: 18.10.2026
 
 Bu çalışma, aynı deponun 3. hafta son commit'i
 `bd9744e471b20478bef2e7cd204588a78f87397e` üzerine eklenmiştir.
