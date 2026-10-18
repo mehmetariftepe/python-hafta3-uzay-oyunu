@@ -107,7 +107,7 @@ Rota sayacı ayrıca 0–40 adım arasında bağımsız ileri yönlü sayımla k
 
 # Hafta 3 - Fonksiyonlar (önceki belgeleme)
 
-Öğrenci bilgileri: Mehmet Arif Tepe / 20253006008
+Mehmet Arif Tepe / 20253006008
 Hazırlanma tarihi: 11.10.2026
 
 Bu proje bağımsız bir çalışma örneğidir.
