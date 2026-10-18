@@ -3,8 +3,7 @@
 Mehmet Arif Tepe / 20253006008
 Hazırlanma tarihi: 18.10.2026
 
-Bu çalışma, aynı deponun 3. hafta son commit'i
-`bd9744e471b20478bef2e7cd204588a78f87397e` üzerine eklenmiştir.
+Bu çalışma, aynı deponun 3. hafta son commit'i üzerine eklenmiştir.
 Önceki harita ve testler korunmuştur. Beş görev ve bonus ayrı commit'lerdedir.
 
 ## Çalıştırma ve test
