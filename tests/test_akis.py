@@ -11,6 +11,8 @@ from uzay_oyunu.galaksi import galaksi_oku
 from uzay_oyunu.oyun import travel
 from uzay_oyunu.akis import satirlari_oku, ayristir, uzun_yolculuklar
 from uzay_oyunu.akis import rota_sayaci, rota_sayaci_onbelleksiz
+from functools import partial
+from uzay_oyunu import istatistik
 
 
 def test_fibonacci_next() -> None:
@@ -147,3 +149,32 @@ def test_dosya_okuma_da_tembeldir(tmp_path: Path) -> None:
     g = satirlari_oku(tmp_path / "yok.txt")
     with pytest.raises(FileNotFoundError):
         next(g)
+
+
+def test_istatistik_iki_yazim() -> None:
+    """Her sorunun iki çözümü kendi haritamızdaki beklenen sonucu verir."""
+    g = galaksi_oku()
+    assert istatistik.buyuk_adlar_map(g) == istatistik.buyuk_adlar_liste(g) == [
+        "DÜNYA", "CENTAURI", "SIRIUS", "ORION", "KARA_DELIK"
+    ]
+    assert istatistik.en_az_iki_filter(g) == istatistik.en_az_iki_liste(g) == [
+        "dünya", "centauri", "sirius"
+    ]
+    assert istatistik.toplam_baglanti_reduce(g) == istatistik.toplam_baglanti_sum(g) == 10
+
+
+def test_istatistik_bos_galaksi() -> None:
+    """Başlangıç değeri sayesinde reduce boş haritada da sıfır verir."""
+    g = {"gezegenler": [], "baglantilar": {}}
+    assert istatistik.buyuk_adlar_map(g) == istatistik.buyuk_adlar_liste(g) == []
+    assert istatistik.en_az_iki_filter(g) == istatistik.en_az_iki_liste(g) == []
+    assert istatistik.toplam_baglanti_reduce(g) == istatistik.toplam_baglanti_sum(g) == 0
+
+
+def test_partial_yolculuk() -> None:
+    """partial özgün fonksiyonu değiştirmeden hız parametresini bağlar."""
+    assert isinstance(istatistik.hizli_yolculuk, partial)
+    assert istatistik.hizli_yolculuk.func is istatistik.yolculuk
+    assert istatistik.hizli_yolculuk.keywords == {"hiz": 3}
+    assert istatistik.hizli_yolculuk(12) == 4
+    assert istatistik.yolculuk(12) == 12
