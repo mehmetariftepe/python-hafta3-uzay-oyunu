@@ -97,7 +97,9 @@ def test_gecersiz_yakit(yakit: int, tuketim: int) -> None:
         next(yakit_gostergesi(yakit, tuketim))
 
 
-def test_oyun_yakit_bitince_kaybeder(monkeypatch, capsys) -> None:
+def test_oyun_yakit_bitince_kaybeder(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
     """Son sıfır değerinden sonra yeni hamle veya giriş alınmaz."""
     cevaplar = iter(["yanlış", "1"])
     monkeypatch.setattr("builtins.input", lambda mesaj: next(cevaplar))
@@ -108,7 +110,7 @@ def test_oyun_yakit_bitince_kaybeder(monkeypatch, capsys) -> None:
     assert "Yakıtın bitti, uzayda sürükleniyorsun…" in capsys.readouterr().out
 
 
-def test_oyun_sifir_yakitla_giris_istemez(capsys) -> None:
+def test_oyun_sifir_yakitla_giris_istemez(capsys: pytest.CaptureFixture[str]) -> None:
     """Boş gösterge doğrudan kayıp mesajına yol açar."""
     g = galaksi_oku()
     g["yakit"] = 0
@@ -181,7 +183,7 @@ def test_partial_yolculuk() -> None:
     assert istatistik.yolculuk(12) == 12
 
 
-def test_zamanlayici_sahte_saat(monkeypatch) -> None:
+def test_zamanlayici_sahte_saat(monkeypatch: pytest.MonkeyPatch) -> None:
     """Gerçekte beklemeden aralık sınırlarında sinyal üretilmesi sınanır."""
     saat = [0.0]
     monkeypatch.setattr(akis, "perf_counter", lambda: saat[0])
