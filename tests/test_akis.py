@@ -1,5 +1,7 @@
 """Hafta 4 görevlerinin örnek, sınır ve tembellik testleri."""
 from itertools import islice, takewhile
+from pathlib import Path
+from collections.abc import Iterator
 
 import pytest
 
@@ -7,6 +9,7 @@ from uzay_oyunu.akis import fibonacci
 from uzay_oyunu.akis import yakit_gostergesi
 from uzay_oyunu.galaksi import galaksi_oku
 from uzay_oyunu.oyun import travel
+from uzay_oyunu.akis import satirlari_oku, ayristir, uzun_yolculuklar
 
 
 def test_fibonacci_next() -> None:
@@ -63,3 +66,39 @@ def test_oyun_sifir_yakitla_giris_istemez(capsys) -> None:
     g["yakit"] = 0
     assert travel(g) == 0
     assert "Yakıtın bitti" in capsys.readouterr().out
+
+
+def test_seyir_dosyasi() -> None:
+    """PDF örneklerinin toplamı ve hedef sırası korunur."""
+    yol = Path(__file__).resolve().parents[1] / "veri" / "seyir.txt"
+    assert sum(y for _, _, y in ayristir(satirlari_oku(yol))) == 88
+    kayitlar = ayristir(satirlari_oku(yol))
+    assert [h for _, h, _ in uzun_yolculuklar(kayitlar, 10)] == [
+        "sirius", "centauri", "orion", "kara_delik"
+    ]
+
+
+def test_bos_satir_yorum_ve_esik(tmp_path: Path) -> None:
+    """Girintili yorumlar atlanır; eşiğe eşit kayıt alınmaz."""
+    yol = tmp_path / "seyir.txt"
+    yol.write_text("\n  # yorum\n a -> b 10\n b -> c 11\n", encoding="utf-8")
+    assert list(uzun_yolculuklar(ayristir(satirlari_oku(yol)), 10)) == [("b", "c", 11)]
+
+
+def test_boru_hatti_tembeldir() -> None:
+    """İlk sonuç istenirken kaynağın ikinci satırı okunmamalıdır."""
+    def kaynak() -> Iterator[str]:
+        """Erken okuma olursa hata veren tek geçişli kaynak."""
+        yield "a -> b 12"
+        raise AssertionError("Gereğinden erken okundu")
+    hat = uzun_yolculuklar(ayristir(kaynak()), 10)
+    assert next(hat) == ("a", "b", 12)
+    with pytest.raises(AssertionError, match="erken"):
+        next(hat)
+
+
+def test_dosya_okuma_da_tembeldir(tmp_path: Path) -> None:
+    """Dosya üreteç kurulurken değil ilk next çağrısında açılır."""
+    g = satirlari_oku(tmp_path / "yok.txt")
+    with pytest.raises(FileNotFoundError):
+        next(g)
