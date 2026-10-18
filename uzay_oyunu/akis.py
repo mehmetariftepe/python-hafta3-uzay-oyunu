@@ -45,3 +45,34 @@ def uzun_yolculuklar(
     for kayit in kayitlar:
         if kayit[2] > esik:
             yield kayit
+
+
+def rota_sayaci(baglantilar: Mapping[str, Sequence[str]]) -> Callable[[str, int], int]:
+    """Tam adım sayısındaki rotaları sayan, bağımsız önbellekli closure döndürür."""
+    @lru_cache(maxsize=None)
+    def rota_sayisi(gezegen: str, adim: int) -> int:
+        """Sıfır adımda boş rota birdir; diğerlerinde komşu sonuçları toplanır."""
+        if adim < 0:
+            raise ValueError("Adım negatif olamaz.")
+        if gezegen not in baglantilar:
+            raise ValueError("Bilinmeyen gezegen.")
+        if adim == 0:
+            return 1
+        return sum(rota_sayisi(hedef, adim - 1) for hedef in baglantilar[gezegen])
+    return rota_sayisi
+
+
+def rota_sayaci_onbelleksiz(
+    baglantilar: Mapping[str, Sequence[str]]
+) -> Callable[[str, int], int]:
+    """Karşılaştırma için aynı hesabın önbelleksiz sürümünü döndürür."""
+    def rota_sayisi(gezegen: str, adim: int) -> int:
+        """Her çağrıda alt rotaları yeniden hesaplar."""
+        if adim < 0:
+            raise ValueError("Adım negatif olamaz.")
+        if gezegen not in baglantilar:
+            raise ValueError("Bilinmeyen gezegen.")
+        if adim == 0:
+            return 1
+        return sum(rota_sayisi(hedef, adim - 1) for hedef in baglantilar[gezegen])
+    return rota_sayisi

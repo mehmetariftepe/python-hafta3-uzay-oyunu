@@ -10,6 +10,7 @@ from uzay_oyunu.akis import yakit_gostergesi
 from uzay_oyunu.galaksi import galaksi_oku
 from uzay_oyunu.oyun import travel
 from uzay_oyunu.akis import satirlari_oku, ayristir, uzun_yolculuklar
+from uzay_oyunu.akis import rota_sayaci, rota_sayaci_onbelleksiz
 
 
 def test_fibonacci_next() -> None:
@@ -40,6 +41,50 @@ def test_yakit_ornek_ve_stopiteration() -> None:
         next(g)
     assert list(yakit_gostergesi(0, 5)) == []
     assert list(yakit_gostergesi(5, 10)) == [0]
+
+
+def test_rota_tam_adim_ve_onbellek() -> None:
+    """Küçük döngülü haritada tam adım sayısı ve cache isabeti doğrulanır."""
+    baglantilar = {"a": ["a", "b"], "b": []}
+    say = rota_sayaci(baglantilar)
+    assert say("a", 0) == 1
+    assert say("b", 1) == 0
+    assert say("a", 3) == 2
+    once = say.cache_info()
+    assert say("a", 3) == 2
+    assert say.cache_info().hits == once.hits + 1
+    assert say.cache_info().misses == once.misses
+
+
+def test_rota_kendi_galaksimiz() -> None:
+    """Bağımsız, ileri yönlü sayımla gerçek haritanın sonuçlarını doğrular."""
+    baglantilar = galaksi_oku()["baglantilar"]
+    say = rota_sayaci(baglantilar)
+    dagilim = {g: int(g == "dünya") for g in baglantilar}
+    for adim in range(41):
+        assert say("dünya", adim) == sum(dagilim.values())
+        sonraki = dict.fromkeys(baglantilar, 0)
+        for kaynak, adet in dagilim.items():
+            for hedef in baglantilar[kaynak]:
+                sonraki[hedef] += adet
+        dagilim = sonraki
+    yavas = rota_sayaci_onbelleksiz(baglantilar)
+    for adim in range(8):
+        assert say("dünya", adim) == yavas("dünya", adim)
+
+
+def test_rota_sinirlar_ve_bagimsiz_onbellek() -> None:
+    """Bilinmeyen gezegen, negatif adım ve farklı haritalar sınanır."""
+    for kur in (rota_sayaci, rota_sayaci_onbelleksiz):
+        say = kur({"a": []})
+        with pytest.raises(ValueError):
+            say("a", -1)
+        with pytest.raises(ValueError):
+            say("yok", 0)
+    ilk = rota_sayaci({"a": []})
+    ikinci = rota_sayaci({"a": ["a"]})
+    assert ilk("a", 2) == 0
+    assert ikinci("a", 2) == 1
 
 
 @pytest.mark.parametrize("yakit,tuketim", [(-1, 5), (10, 0), (10, -1)])
