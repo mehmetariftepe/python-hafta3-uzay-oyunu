@@ -2,6 +2,7 @@
 from collections.abc import Iterator, Iterable, Mapping, Sequence, Callable
 from pathlib import Path
 from functools import lru_cache
+from time import perf_counter
 
 
 def fibonacci() -> Iterator[int]:
@@ -76,3 +77,16 @@ def rota_sayaci_onbelleksiz(
             return 1
         return sum(rota_sayisi(hedef, adim - 1) for hedef in baglantilar[gezegen])
     return rota_sayisi
+
+
+def zamanlayici(aralik: float) -> Iterator[bool]:
+    """Meşgul bekleme için her sorguda bir sonraki sürenin dolmasını bildirir."""
+    if aralik <= 0:
+        raise ValueError("Aralık pozitif olmalıdır.")
+    sonraki = perf_counter() + aralik
+    while True:
+        if perf_counter() >= sonraki:
+            sonraki += aralik
+            yield True
+        else:
+            yield False

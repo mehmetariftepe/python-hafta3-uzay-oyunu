@@ -13,6 +13,7 @@ from uzay_oyunu.akis import satirlari_oku, ayristir, uzun_yolculuklar
 from uzay_oyunu.akis import rota_sayaci, rota_sayaci_onbelleksiz
 from functools import partial
 from uzay_oyunu import istatistik
+from uzay_oyunu import akis
 
 
 def test_fibonacci_next() -> None:
@@ -178,3 +179,20 @@ def test_partial_yolculuk() -> None:
     assert istatistik.hizli_yolculuk.keywords == {"hiz": 3}
     assert istatistik.hizli_yolculuk(12) == 4
     assert istatistik.yolculuk(12) == 12
+
+
+def test_zamanlayici_sahte_saat(monkeypatch) -> None:
+    """Gerçekte beklemeden aralık sınırlarında sinyal üretilmesi sınanır."""
+    saat = [0.0]
+    monkeypatch.setattr(akis, "perf_counter", lambda: saat[0])
+    g = akis.zamanlayici(2)
+    assert next(g) is False
+    saat[0] = 1.99
+    assert next(g) is False
+    saat[0] = 2.0
+    assert next(g) is True
+    assert next(g) is False
+    saat[0] = 4.0
+    assert next(g) is True
+    with pytest.raises(ValueError):
+        next(akis.zamanlayici(0))
