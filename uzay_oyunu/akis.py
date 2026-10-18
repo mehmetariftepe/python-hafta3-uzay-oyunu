@@ -8,3 +8,12 @@ def fibonacci() -> Iterator[int]:
     while True:
         yield onceki
         onceki, simdiki = simdiki, onceki + simdiki
+
+
+def yakit_gostergesi(yakit: int, tuketim: int) -> Iterator[int]:
+    """Her adımda tüketir; sıfırı bir kez üretir, sonra sonlanır."""
+    if yakit < 0 or tuketim <= 0:
+        raise ValueError("Yakıt negatif, tüketim sıfır veya negatif olamaz.")
+    while yakit > 0:
+        yakit = max(0, yakit - tuketim)
+        yield yakit
