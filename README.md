@@ -3,8 +3,7 @@
 Mehmet Arif Tepe / 20253006008
 Hazırlanma tarihi: 25.10.2026
 
-Hafta 4'ün sonunda bulunan `b9cffcc2e24dbe6ad17622d4936d72cf66b5579c`
-commit'inden devam edilmiştir. Önceki harita ve test dosyaları korunmuştur.
+Hafta 4'ün sonunda bulunan committen devam edilmiştir. Önceki harita ve test dosyaları korunmuştur.
 Her görev ve bonus ayrı commit olarak kaydedilmiştir.
 
 ## Çalıştırma
