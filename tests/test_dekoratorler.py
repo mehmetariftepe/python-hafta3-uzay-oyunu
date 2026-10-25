@@ -72,6 +72,8 @@ def test_say_arguman_sonuc_ve_bilgi() -> None:
 def test_fibonacci_dekorator_sirasi() -> None:
     """Üç katman sırası gerçek çağrılarla beklenen sayıları vermelidir."""
     assert fibonacci_cagrilarini_goster() == (21891, 39, 21)
+    # Aynı süreçte ikinci çalıştırma da temiz önbellekle ölçülür.
+    assert fibonacci_cagrilarini_goster() == (21891, 39, 21)
 
 
 def test_log_argumanlar_sonuc_ve_bilgi(capsys: pytest.CaptureFixture[str]) -> None:
@@ -273,5 +275,3 @@ def test_hafiza_hatalari_saklamaz() -> None:
         with pytest.raises(ValueError, match="örnek hata"):
             hata(1)
     assert hata.__wrapped__.cagri == 2
-    # Aynı süreçte ikinci çalıştırma da temiz önbellekle ölçülür.
-    assert fibonacci_cagrilarini_goster() == (21891, 39, 21)

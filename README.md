@@ -1,4 +1,90 @@
-# Hafta 4 - Üreteçler ve functools
+# Hafta 5 - Dekoratörler ve komut sistemi
+
+Mehmet Arif Tepe / 20253006008
+Hazırlanma tarihi: 25.10.2026
+
+Hafta 4'ün sonunda bulunan `b9cffcc2e24dbe6ad17622d4936d72cf66b5579c`
+commit'inden devam edilmiştir. Önceki harita ve test dosyaları korunmuştur.
+Her görev ve bonus ayrı commit olarak kaydedilmiştir.
+
+## Çalıştırma
+
+Depo kökünde Python 3.12+ ile:
+
+```sh
+python -m uzay_oyunu.oyun
+python -m uzay_oyunu.dekorator_ornekleri
+```
+
+`uv` kuruluysa aynı komutların başına `uv run` eklenebilir.
+Testler için `uv run pytest -v` kullanılır; GitHub Actions da bu komutu çalıştırır.
+
+Oyun menüsünde gezegen numarası yerine `yardim`, `envanter` veya `harita`
+yazılabilir. Bu komutlar hamle ve yakıt tüketmez; aynı menü yeniden gösterilir.
+`q` oyundan çıkar. Örnek: `yardim` → `harita` → `1` → `envanter`.
+
+## Görevler ve dosyalar
+
+| Görev | Uygulama | Kontrol |
+| --- | --- | --- |
+| 1: süre | `dekoratorler.sure_olc` | Sonuç, adlı argüman, ad/docstring ve çıktı biçimi |
+| 2: sayaç ve sıra | `say`, `dekorator_ornekleri` | fib(20): 21891 / 39 / 21 çağrı |
+| 3: log | `log_cagri` | `galaksi_kur` ve `hedef_menusu` gerçekten dekore edilir |
+| 4: kayıt deseni | `komutlar.py`, `oyun.travel` | Üç komut, kimlik koruma, yinelenen ad ve oyun akışı |
+| 5: sınır | `sinirla(0, 100)`, `yakit_harca` | 0 ve 100 dahil; -1, 101, 150 reddedilir |
+| Bonus: önbellek | `hafiza(maxsize=None)` | Sınırsız cache, FIFO sınırı, adlı argümanlar ve lru_cache karşılaştırması |
+
+Yeni testler `tests/test_dekoratorler.py` dosyasındadır.
+Dekoratörlerin tanım/çağrı anındaki davranışı ve sıra açıklaması
+[dekorator_sirasi.md](dekorator_sirasi.md) içindedir.
+
+## Süre dekoratörünün gerçek ölçümü
+
+25.10.2026, Python 3.12.14 / Linux ortamında
+`python -m uzay_oyunu.dekorator_ornekleri` komutunun rota kısmı:
+
+```text
+rota_sayisi: 7.0232 sn
+20 adımlık rota sayısı: 20617703
+```
+
+Bu, Hafta 4'ün önbelleksiz sayacının **dışarıdan** `sure_olc` ile
+sarılmış halidir; her özyinelemeli çağrı için ayrı süre basılmaz.
+Ölçüm `time.perf_counter()` ile yapılır ve dönen sonuç korunur.
+Süre cihaza/yüke göre değişir; buradaki değer çalıştırılmış tek koşudur.
+
+## Tasarım tercihleri
+
+- Bütün sarmalayıcı dekoratörler `functools.wraps` ile adı, açıklamayı
+  ve özgün fonksiyona `__wrapped__` bağlantısını korur. `*args`, `**kwargs`
+  ve dönüş değerleri aktarılır. Tip ipuçları `ParamSpec`/`TypeVar` ile korunur.
+- **Kayıt dekoratörü özel durumdur:** PDF aynı fonksiyonun döndürülmesini
+  istediği için `komut` sarmalayıcı üretmez. `wraps` gerektiren yeni bir
+  fonksiyon yoktur; fonksiyon kimliği testte `is` ile doğrulanır.
+- Loglar `stderr` akışına yazılır. Böylece eski saf metin testlerinin
+  `stdout` beklentisi değişmez; terminalde hem çağrı hem sonuç görünür.
+  Ekranı sade tutmak için Bash'te `2>/dev/null`, PowerShell'de `2>$null`
+  ile loglar gizlenebilir. İstisna halinde çağrı kaydı vardır ama dönüş değeri yoktur.
+- `sinirla` hem `yakit_harca(30)` hem `yakit_harca(miktar=30)` çağrısını
+  denetler. Geçersiz değerlerde asıl fonksiyon çalışmaz. Bu fonksiyon 100'lük
+  ayrı depo örneğidir; oyunun mevcut yakıt üreteci korunmuştur.
+- Bonus cache, `lru_cache` kullanmadan closure içindeki bir `dict` ile çalışır.
+  `None` sınırsız, `0` kapalı önbellektir. Pozitif kapasitede ilk eklenen
+  kayıt silinir (**FIFO**); isabetler eklenme sırasını yenilemez.
+  `lru_cache` ise en uzun süredir kullanılmayanı siler (**LRU**).
+  İki yöntem aynı fonksiyon sonuçlarını verir, fakat hesap sayıları farklı olabilir.
+  Anahtarlar hashlenebilir konumsal/adlı argümanlardan oluşur; istisnalar saklanmaz.
+  Bu basit eğitim örneği `lru_cache`'in tüm tür/iş parçacığı özelliklerini taklit etmez.
+
+## Doğrulama
+
+Yerel `uv run pytest -q`: **62 test geçti** (39 eski, 23 yeni test durumu).
+Her görevden sonra bütün testler çalıştırılmıştır. Oyun entegrasyon testi,
+komutlar arasında dört yolculuk yapıp 60 yakıtla kara deliğe ulaşır.
+
+---
+
+# Hafta 4 - Üreteçler ve functools (önceki belgeleme)
 
 Mehmet Arif Tepe / 20253006008
 Hazırlanma tarihi: 18.10.2026
