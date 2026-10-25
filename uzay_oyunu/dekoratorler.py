@@ -4,6 +4,7 @@ from functools import wraps
 from time import perf_counter
 from typing import ParamSpec, TypeVar
 import sys
+from inspect import signature
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -45,3 +46,36 @@ def log_cagri(fonksiyon: Callable[P, R]) -> Callable[P, R]:
         print(f"<- {fonksiyon.__name__} = {sonuc!r}", file=sys.stderr)
         return sonuc
     return sarmalayici
+
+
+def sinirla(alt: float, ust: float) -> Callable[[Callable[P, R]], Callable[P, R]]:
+    """İlk argümanı iki sınır dahil [alt, ust] aralığıyla sınırlar."""
+    if alt > ust:
+        raise ValueError("Alt sınır üst sınırdan büyük olamaz.")
+
+    def dekore(fonksiyon: Callable[P, R]) -> Callable[P, R]:
+        """İmzayı tanım anında alır; kontrolü her çağrıda yapar."""
+        imza = signature(fonksiyon)
+        if not imza.parameters:
+            raise TypeError("Sınırlandırılacak fonksiyon en az bir parametre almalı.")
+        ilk_parametre = next(iter(imza.parameters))
+
+        @wraps(fonksiyon)
+        def sarmalayici(*args: P.args, **kwargs: P.kwargs) -> R:
+            """Konumsal, adlı veya varsayılan ilk argümanı denetler."""
+            bagli = imza.bind(*args, **kwargs)
+            bagli.apply_defaults()
+            deger = bagli.arguments[ilk_parametre]
+            if not alt <= deger <= ust:
+                raise ValueError(
+                    f"{fonksiyon.__name__}: {deger} değeri {alt}-{ust} aralığında değil"
+                )
+            return fonksiyon(*args, **kwargs)
+        return sarmalayici
+    return dekore
+
+
+@sinirla(0, 100)
+def yakit_harca(miktar: int) -> int:
+    """100 birimlik depodan geçerli miktarı harcayıp kalanı döndürür."""
+    return 100 - miktar

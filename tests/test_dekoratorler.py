@@ -5,6 +5,7 @@ from uzay_oyunu import dekoratorler
 from uzay_oyunu.dekoratorler import sure_olc
 from uzay_oyunu.dekoratorler import say
 from uzay_oyunu.dekoratorler import log_cagri
+from uzay_oyunu.dekoratorler import sinirla, yakit_harca
 from uzay_oyunu.dekorator_ornekleri import fibonacci_cagrilarini_goster
 from uzay_oyunu import komutlar
 
@@ -160,5 +161,36 @@ def test_travel_komutlari_hamle_ve_yakit_tuketmez(
     assert "envanter eşyalarını gösterir" in cikti
     assert "Sende: bol kredi, hiperdrive, yetenekli bir pilot" in cikti
     assert cikti.count("Nereye gitmek istersin?") == 9
+
+
+@pytest.mark.parametrize("miktar,beklenen", [(0, 100), (30, 70), (100, 0)])
+def test_yakit_harca_sinirlar(miktar: int, beklenen: int) -> None:
+    """Her iki sınır dahildir; normal bir ara değer de kabul edilir."""
+    assert yakit_harca(miktar) == beklenen
+    assert yakit_harca(miktar=miktar) == beklenen
+
+
+@pytest.mark.parametrize("miktar", [-1, 101, 150])
+def test_yakit_harca_aralik_disi(miktar: int) -> None:
+    """Alt ve üst sınır dışındaki değerler anlamlı hata üretir."""
+    with pytest.raises(ValueError) as hata:
+        yakit_harca(miktar)
+    assert str(hata.value) == f"yakit_harca: {miktar} değeri 0-100 aralığında değil"
+
+
+def test_sinirla_arguman_aktarimi_ve_bilgi() -> None:
+    """Öteki argümanlar ve fonksiyon bilgisi sarmalayıcıdan korunarak geçer."""
+    @sinirla(0, 100)
+    def hesapla(miktar: int = 30, *, carpan: int = 1) -> int:
+        """Sınır örneği."""
+        return miktar * carpan
+
+    assert hesapla(miktar=20, carpan=3) == 60
+    assert hesapla() == 30
+    assert (hesapla.__name__, hesapla.__doc__) == ("hesapla", "Sınır örneği.")
+    with pytest.raises(ValueError, match="Alt sınır"):
+        sinirla(100, 0)
+    with pytest.raises(TypeError):
+        yakit_harca()
     # Aynı süreçte ikinci çalıştırma da temiz önbellekle ölçülür.
     assert fibonacci_cagrilarini_goster() == (21891, 39, 21)
