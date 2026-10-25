@@ -2,7 +2,9 @@
 import json
 from pathlib import Path
 from typing import Any
+from uzay_oyunu.dekoratorler import log_cagri
 
+@log_cagri
 def galaksi_kur(gezegenler: list[str], baglantilar: dict[str, list[str]],
                 baslangic: str, **kwargs: Any) -> dict[str, Any]:
     """Başlangıcı doğrular ve yakıt verilmezse 50 ile galaksi oluşturur."""

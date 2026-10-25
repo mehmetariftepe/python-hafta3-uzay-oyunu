@@ -4,6 +4,7 @@ import pytest
 from uzay_oyunu import dekoratorler
 from uzay_oyunu.dekoratorler import sure_olc
 from uzay_oyunu.dekoratorler import say
+from uzay_oyunu.dekoratorler import log_cagri
 from uzay_oyunu.dekorator_ornekleri import fibonacci_cagrilarini_goster
 
 
@@ -67,5 +68,33 @@ def test_say_arguman_sonuc_ve_bilgi() -> None:
 def test_fibonacci_dekorator_sirasi() -> None:
     """Üç katman sırası gerçek çağrılarla beklenen sayıları vermelidir."""
     assert fibonacci_cagrilarini_goster() == (21891, 39, 21)
+
+
+def test_log_argumanlar_sonuc_ve_bilgi(capsys: pytest.CaptureFixture[str]) -> None:
+    """Log iki aşamada doğru biçimde yazılır; normal stdout boş kalır."""
+    @log_cagri
+    def yolculuk(hedef: str, *, hiz: int) -> str:
+        """Log örneği."""
+        return f"{hedef} hiz={hiz}"
+
+    assert yolculuk("orion", hiz=3) == "orion hiz=3"
+    cikti = capsys.readouterr()
+    assert cikti.out == ""
+    assert cikti.err == "-> yolculuk('orion', hiz=3)\n<- yolculuk = 'orion hiz=3'\n"
+    assert (yolculuk.__name__, yolculuk.__doc__) == ("yolculuk", "Log örneği.")
+
+
+def test_log_hedef_fonksiyonlarda(capsys: pytest.CaptureFixture[str]) -> None:
+    """İstenen iki mevcut fonksiyon gerçekten dekore edilmiş olmalıdır."""
+    from uzay_oyunu.galaksi import galaksi_kur
+    from uzay_oyunu.oyun import hedef_menusu
+
+    assert galaksi_kur(["a"], {"a": []}, "a")["konum"] == "a"
+    assert hedef_menusu(["a"]) == "Nereye gitmek istersin?\n[1] a"
+    cikti = capsys.readouterr()
+    assert cikti.out == ""
+    for ad in ("galaksi_kur", "hedef_menusu"):
+        assert f"-> {ad}(" in cikti.err
+        assert f"<- {ad} = " in cikti.err
     # Aynı süreçte ikinci çalıştırma da temiz önbellekle ölçülür.
     assert fibonacci_cagrilarini_goster() == (21891, 39, 21)

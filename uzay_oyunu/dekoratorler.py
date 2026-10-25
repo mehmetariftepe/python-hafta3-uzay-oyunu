@@ -3,6 +3,7 @@ from collections.abc import Callable
 from functools import wraps
 from time import perf_counter
 from typing import ParamSpec, TypeVar
+import sys
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -29,4 +30,18 @@ def say(fonksiyon: Callable[P, R]) -> Callable[P, R]:
         sarmalayici.cagri += 1
         return fonksiyon(*args, **kwargs)
     sarmalayici.cagri = 0
+    return sarmalayici
+
+
+def log_cagri(fonksiyon: Callable[P, R]) -> Callable[P, R]:
+    """Adı, argümanları ve sonucu stderr'e yazar; normal çıktıyı korur."""
+    @wraps(fonksiyon)
+    def sarmalayici(*args: P.args, **kwargs: P.kwargs) -> R:
+        """Çağrı öncesi ve başarılı dönüş sonrası repr biçiminde kayıt basar."""
+        argumanlar = [repr(arg) for arg in args]
+        argumanlar.extend(f"{ad}={deger!r}" for ad, deger in kwargs.items())
+        print(f"-> {fonksiyon.__name__}({', '.join(argumanlar)})", file=sys.stderr)
+        sonuc = fonksiyon(*args, **kwargs)
+        print(f"<- {fonksiyon.__name__} = {sonuc!r}", file=sys.stderr)
+        return sonuc
     return sarmalayici

@@ -2,6 +2,7 @@
 from typing import Any
 from uzay_oyunu.araclar import hamle_sayaci
 from uzay_oyunu.akis import yakit_gostergesi
+from uzay_oyunu.dekoratorler import log_cagri
 
 def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
     """Mevcut eşyaları tek metinde döndürür; boş envanterde boş metin verir."""
@@ -16,6 +17,7 @@ def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
         return ""
     return "Sende: " + ", ".join(esyalar)
 
+@log_cagri
 def hedef_menusu(hedefler: list[str]) -> str:
     """Hedeflerin sırasını değiştirmeden birden başlayan menü döndürür."""
     satirlar = ["Nereye gitmek istersin?"]
