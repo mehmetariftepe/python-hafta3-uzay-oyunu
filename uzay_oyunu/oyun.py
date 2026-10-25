@@ -3,6 +3,7 @@ from typing import Any
 from uzay_oyunu.araclar import hamle_sayaci
 from uzay_oyunu.akis import yakit_gostergesi
 from uzay_oyunu.dekoratorler import log_cagri
+from uzay_oyunu.komutlar import KOMUTLAR
 
 def envanter_metni(credits: bool, engines: bool, copilot: bool) -> str:
     """Mevcut eşyaları tek metinde döndürür; boş envanterde boş metin verir."""
@@ -46,9 +47,15 @@ def travel(galaksi: dict[str, Any]) -> int:
         if not hedefler:
             break
         print(hedef_menusu(hedefler))
-        secim = input("Seçim (çıkış: q): ")
+        secim = input("Seçim (yardim/harita/envanter; çıkış: q): ")
         if secim == "q":
             break
+        if secim in KOMUTLAR:
+            durum = {"konum": galaksi["konum"], "baglantilar": galaksi["baglantilar"],
+                     "credits": credits, "engines": engines, "copilot": copilot}
+            fonksiyon, _ = KOMUTLAR[secim]
+            print(fonksiyon(durum))
+            continue
         if not secim.isdigit() or not 1 <= int(secim) <= len(hedefler):
             print("Geçersiz seçim.")
             continue

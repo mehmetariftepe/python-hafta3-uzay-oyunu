@@ -6,6 +6,7 @@ from uzay_oyunu.dekoratorler import sure_olc
 from uzay_oyunu.dekoratorler import say
 from uzay_oyunu.dekoratorler import log_cagri
 from uzay_oyunu.dekorator_ornekleri import fibonacci_cagrilarini_goster
+from uzay_oyunu import komutlar
 
 
 def test_sure_olc_sonucu_ve_bicimi_korur(
@@ -96,5 +97,68 @@ def test_log_hedef_fonksiyonlarda(capsys: pytest.CaptureFixture[str]) -> None:
     for ad in ("galaksi_kur", "hedef_menusu"):
         assert f"-> {ad}(" in cikti.err
         assert f"<- {ad} = " in cikti.err
+
+
+def test_yardim_komutu() -> None:
+    """Yardım kayıtlı üç komutu açıklamalarıyla alfabetik listeler."""
+    assert komutlar.yardim({}).splitlines() == [
+        "envanter eşyalarını gösterir",
+        "harita   gidebileceğin gezegenleri gösterir",
+        "yardim   komutları listeler",
+    ]
+
+
+def test_envanter_komutu() -> None:
+    """Komut durumdaki güncel eşyaları okur; boş envanteri de açıklar."""
+    durum = {"credits": True, "engines": True, "copilot": False}
+    assert komutlar.envanter(durum) == "Sende: bol kredi, hiperdrive"
+    assert durum == {"credits": True, "engines": True, "copilot": False}
+    assert komutlar.envanter(dict.fromkeys(durum, False)) == "Envanter boş."
+
+
+def test_harita_komutu() -> None:
+    """Harita yalnızca mevcut konumun çıkışlarını özgün sırayla döndürür."""
+    durum = {"konum": "a", "baglantilar": {"a": ["c", "b"], "b": []}}
+    assert komutlar.harita(durum) == "c, b"
+    durum["konum"] = "b"
+    assert komutlar.harita(durum) == "Gidilebilecek gezegen yok."
+
+
+def test_komut_kaydi_kimligi_ve_cakisma(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Dekoratör aynı fonksiyonu döndürür; ikinci kayıt ilki üzerine yazamaz."""
+    monkeypatch.setattr(komutlar, "KOMUTLAR", {})
+
+    def ornek(durum: komutlar.Durum) -> str:
+        """Özgün komut açıklaması."""
+        return "örnek"
+
+    assert komutlar.komut("ornek", "açıklama")(ornek) is ornek
+    assert komutlar.KOMUTLAR["ornek"] == (ornek, "açıklama")
+    assert ornek.__doc__ == "Özgün komut açıklaması."
+    with pytest.raises(ValueError, match="zaten kayıtlı"):
+        @komutlar.komut("ornek")
+        def ikinci(durum: komutlar.Durum) -> str:
+            """Tanım tamamlanmadan reddedilecek komut."""
+            return "ikinci"
+    assert komutlar.KOMUTLAR["ornek"][0] is ornek
+
+
+def test_travel_komutlari_hamle_ve_yakit_tuketmez(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Komutlar aynı menüye döner; güncel envanterle dört yolculuk yapılır."""
+    from uzay_oyunu.galaksi import galaksi_oku
+    from uzay_oyunu.oyun import travel
+    cevaplar = iter(["harita", "envanter", "yardim", "1", "envanter",
+                     "3", "envanter", "1", "4"])
+    monkeypatch.setattr("builtins.input", lambda mesaj: next(cevaplar))
+    galaksi = galaksi_oku()
+    assert travel(galaksi) == 4
+    assert (galaksi["konum"], galaksi["yakit"]) == ("kara_delik", 60)
+    cikti = capsys.readouterr().out
+    assert "centauri, sirius" in cikti
+    assert "envanter eşyalarını gösterir" in cikti
+    assert "Sende: bol kredi, hiperdrive, yetenekli bir pilot" in cikti
+    assert cikti.count("Nereye gitmek istersin?") == 9
     # Aynı süreçte ikinci çalıştırma da temiz önbellekle ölçülür.
     assert fibonacci_cagrilarini_goster() == (21891, 39, 21)
