@@ -2,7 +2,7 @@
 from collections.abc import Callable
 from functools import wraps
 from time import perf_counter
-from typing import ParamSpec, TypeVar
+from typing import Any, ParamSpec, TypeVar
 import sys
 from inspect import signature
 
@@ -79,3 +79,29 @@ def sinirla(alt: float, ust: float) -> Callable[[Callable[P, R]], Callable[P, R]
 def yakit_harca(miktar: int) -> int:
     """100 birimlik depodan geçerli miktarı harcayıp kalanı döndürür."""
     return 100 - miktar
+
+
+def hafiza(maxsize: int | None = None) -> Callable[[Callable[P, R]], Callable[P, R]]:
+    """Hashlenebilir argümanların sonuçlarını closure sözlüğünde FIFO saklar."""
+    if maxsize is not None and maxsize < 0:
+        raise ValueError("maxsize negatif olamaz.")
+
+    def dekore(fonksiyon: Callable[P, R]) -> Callable[P, R]:
+        """Her dekore edilen fonksiyon için bağımsız bir önbellek oluşturur."""
+        onbellek: dict[Any, R] = {}
+
+        @wraps(fonksiyon)
+        def sarmalayici(*args: P.args, **kwargs: P.kwargs) -> R:
+            """İsabette sonucu döndürür; doluysa en eski ekleneni siler."""
+            if maxsize == 0:
+                return fonksiyon(*args, **kwargs)
+            anahtar = (args, tuple(kwargs.items()))
+            if anahtar in onbellek:
+                return onbellek[anahtar]
+            sonuc = fonksiyon(*args, **kwargs)
+            if maxsize is not None and len(onbellek) >= maxsize:
+                del onbellek[next(iter(onbellek))]
+            onbellek[anahtar] = sonuc
+            return sonuc
+        return sarmalayici
+    return dekore

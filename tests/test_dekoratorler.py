@@ -6,6 +6,8 @@ from uzay_oyunu.dekoratorler import sure_olc
 from uzay_oyunu.dekoratorler import say
 from uzay_oyunu.dekoratorler import log_cagri
 from uzay_oyunu.dekoratorler import sinirla, yakit_harca
+from uzay_oyunu.dekoratorler import hafiza
+from functools import lru_cache
 from uzay_oyunu.dekorator_ornekleri import fibonacci_cagrilarini_goster
 from uzay_oyunu import komutlar
 
@@ -192,5 +194,84 @@ def test_sinirla_arguman_aktarimi_ve_bilgi() -> None:
         sinirla(100, 0)
     with pytest.raises(TypeError):
         yakit_harca()
+
+
+def test_hafiza_lru_cache_ile_ayni_sonuclar() -> None:
+    """Sınırsız iki önbellekte Fibonacci sonuçları ve hesap sayısı aynıdır."""
+    @hafiza()
+    @say
+    def fib(n: int) -> int:
+        """Closure önbellekli Fibonacci."""
+        return n if n < 2 else fib(n - 1) + fib(n - 2)
+
+    @lru_cache(maxsize=None)
+    @say
+    def diger(n: int) -> int:
+        """Standart önbellekli Fibonacci."""
+        return n if n < 2 else diger(n - 1) + diger(n - 2)
+
+    assert fib(20) == diger(20) == 6765
+    assert fib.__wrapped__.cagri == diger.__wrapped__.cagri == 21
+    assert fib(20) == diger(20)
+    assert fib.__wrapped__.cagri == diger.__wrapped__.cagri == 21
+    assert (fib.__name__, fib.__doc__) == ("fib", "Closure önbellekli Fibonacci.")
+
+
+def test_hafiza_fifo_lru_farki() -> None:
+    """İsabet eski kaydı yenilemez; FIFO ile LRU atılma farkını gösterir."""
+    @hafiza(maxsize=2)
+    @say
+    def fifo(n: int) -> int:
+        """FIFO örneği."""
+        return n * n
+
+    @lru_cache(maxsize=2)
+    @say
+    def lru(n: int) -> int:
+        """LRU örneği."""
+        return n * n
+
+    for n in (1, 2, 1, 3, 1):
+        assert fifo(n) == lru(n) == n * n
+    assert fifo.__wrapped__.cagri == 4  # 3 eklenince en eski eklenen 1 silinir.
+    assert lru.__wrapped__.cagri == 3  # 1 isabetle güncellendiği için 2 silinir.
+
+
+def test_hafiza_adli_argumanlar_ve_sifir() -> None:
+    """Adlı argümanlar anahtara dahildir; maxsize=0 saklamayı kapatır."""
+    @hafiza()
+    @say
+    def carp(a: int, *, b: int) -> int:
+        """Adlı argüman örneği."""
+        return a * b
+
+    assert carp(2, b=3) == carp(2, b=3) == 6
+    assert carp(2, b=4) == 8
+    assert carp.__wrapped__.cagri == 2
+
+    @hafiza(maxsize=0)
+    @say
+    def kapali(n: int) -> int:
+        """Önbelleksiz çağrı."""
+        return n
+
+    assert kapali(2) == kapali(2) == 2
+    assert kapali.__wrapped__.cagri == 2
+    with pytest.raises(ValueError):
+        hafiza(-1)
+
+
+def test_hafiza_hatalari_saklamaz() -> None:
+    """İstisna veren çağrı bir sonuç olarak önbelleğe yazılmamalıdır."""
+    @hafiza(maxsize=1)
+    @say
+    def hata(n: int) -> int:
+        """Her çağrıda hata verir."""
+        raise ValueError("örnek hata")
+
+    for _ in range(2):
+        with pytest.raises(ValueError, match="örnek hata"):
+            hata(1)
+    assert hata.__wrapped__.cagri == 2
     # Aynı süreçte ikinci çalıştırma da temiz önbellekle ölçülür.
     assert fibonacci_cagrilarini_goster() == (21891, 39, 21)
